@@ -2,6 +2,7 @@
     "name": "shinichi-takahashi/rorschach",
     "description": "WebAPI test library",
     "type": "library",
+    "minimum-stability": "dev",
     "require": {
         "php": ">=5.5",
         "symfony/console": "^3.1",
