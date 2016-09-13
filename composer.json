@@ -1,6 +1,6 @@
 {
-    "name": "Rorschach/Rorschach",
-    "description": "WebAPI test library",
+    "name": "cloudpack/Rorschach",
+    "description": "WebAPI Test Library",
     "type": "library",
     "minimum-stability": "dev",
     "require": {
@@ -18,7 +18,7 @@
             "email": "shin1.takapyyy@gmail.com"
         }
     ],
-    "keywords": ["api", "test"],
+    "keywords": ["api", "test", "php"],
     "autoload": {
         "psr-4": {
             "Rorschach\\": "src"
