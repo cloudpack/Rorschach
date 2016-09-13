@@ -1,5 +1,5 @@
 {
-    "name": "cloudpack/Rorschach",
+    "name": "cloudpack/rorschach",
     "description": "WebAPI Test Library",
     "type": "library",
     "minimum-stability": "dev",
