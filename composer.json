@@ -3,6 +3,9 @@
     "description": "WebAPI Test Library",
     "type": "library",
     "minimum-stability": "dev",
+    "bin": [
+        "console"
+    ],
     "require": {
         "php": ">=5.5",
         "symfony/console": "^3.1",
