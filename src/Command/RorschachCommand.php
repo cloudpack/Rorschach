@@ -101,7 +101,7 @@ class RorschachCommand extends Command
         $targets = [];
         $finder = new Finder();
         $finder->files()
-            ->in(__DIR__ . '/../..')
+            ->in(__DIR__ . '/../../../..')
             ->name('test*.yml');
         foreach ($finder as $file) {
             $targets[] = $file->getRealPath();

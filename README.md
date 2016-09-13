@@ -1,12 +1,24 @@
 # Rorschach
-*RorschachはPHP製のAPIテストツールであーる*
 
+
+## Rorschachとは
+
+* Yamlファイルを基準にWebAPIのテストを行うツール
+* 以下の意味合いを込めてある
+    + [アメコミの登場人物](https://ja.wikipedia.org/wiki/%E3%82%A6%E3%82%A9%E3%83%83%E3%83%81%E3%83%A1%E3%83%B3#.E3.82.AF.E3.83.A9.E3.82.A4.E3.83.A0.E3.83.90.E3.82.B9.E3.82.BF.E3.83.BC.E3.82.BA)の絶対に妥協しない性格
+    + [性格診断](https://ja.wikipedia.org/wiki/%E3%83%AD%E3%83%BC%E3%83%AB%E3%82%B7%E3%83%A3%E3%83%83%E3%83%8F%E3%83%BB%E3%83%86%E3%82%B9%E3%83%88)
+
+## Install
+
+```
+composer require --dev cloudpack/Rorschach
+```
 
 ## Usage
 
 ### Basic
 ```
-./vendor/Rorschach/console inspect
+./vendor/cloudpack/rorschach/console inspect
 ```
 
 ### Options
@@ -47,6 +59,9 @@ bind:
 
 
 #### file
+デフォルトでは、プロジェクトディレクトリの `test*.yml` すべてを対象とする。
+特定ファイル指定をしたい場合はコマンドライン引数で指定することが可能。
+
 ```
 --file='test-hoge.yml'
 ```
