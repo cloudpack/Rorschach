@@ -11,14 +11,14 @@
 ## Install
 
 ```
-composer require --dev cloudpack/Rorschach
+composer require --dev cloudpack/rorschach
 ```
 
 ## Usage
 
 ### Basic
 ```
-./vendor/cloudpack/rorschach/console inspect
+./vendor/bin/rorschach inspect
 ```
 
 ### Options
