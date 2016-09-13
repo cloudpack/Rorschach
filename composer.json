@@ -1,0 +1,26 @@
+{
+    "name": "shinichi-takahashi/rorschach",
+    "description": "WebAPI test library",
+    "type": "library",
+    "require": {
+        "php": ">=5.5",
+        "symfony/console": "^3.1",
+        "symfony/finder": "^3.1",
+        "symfony/yaml": "^3.1",
+        "guzzlehttp/guzzle": "^6.2",
+        "symfony/filesystem": "^3.1"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Shinichi Takahashi",
+            "email": "shin1.takapyyy@gmail.com"
+        }
+    ],
+    "keywords": ["api", "test"],
+    "autoload": {
+        "psr-4": {
+            "Rorschach\\": "src"
+        }
+    }
+}

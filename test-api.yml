@@ -1,0 +1,37 @@
+base: https://(( env )).example.com
+header:
+  x-api-key: YOUR-SECRET-KEY
+  ContentType: application/json
+pre-request:
+  -
+    resource: /auth
+    method: GET
+    request:
+      body:
+        name: shinichi
+        password: p@ssw0rd
+    bind:
+      api-token: response.data.param
+resources:
+  -
+    url: /users
+    method: GET
+    request:
+      header:
+        api-token: (( api-token ))
+      body:
+        exclude: false
+    expect:
+      code: 200
+      has:
+        - id
+        - name
+      assert:
+        id: integer
+        name: string
+  -
+    url: /items
+    method: GET
+    expect:
+      code: 302
+      redirect-to: https://prod.example.com

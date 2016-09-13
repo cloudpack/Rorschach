@@ -1,0 +1,12 @@
+#!/usr/bin/env php
+<?php
+error_reporting(E_ERROR | E_PARSE);
+
+require_once "vendor/autoload.php";
+
+use Rorschach\Command\RorschachCommand;
+use Symfony\Component\Console\Application;
+
+$application = new Application();
+$application->add(new RorschachCommand());
+$application->run();
