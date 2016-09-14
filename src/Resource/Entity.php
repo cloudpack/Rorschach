@@ -122,6 +122,8 @@ class Entity
                 return (new Assert\Type($response, $value))->assert();
             case 'redirect':
                 return (new Assert\Redirect($response, $value))->assert();
+            default:
+                throw new \Exception('unknown expect type.');
         }
     }
 
