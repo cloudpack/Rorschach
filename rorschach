@@ -7,6 +7,6 @@ require_once "vendor/autoload.php";
 use Rorschach\Command\RorschachCommand;
 use Symfony\Component\Console\Application;
 
-$application = new Application();
+$application = new Application('Rorschach');
 $application->add(new RorschachCommand());
 $application->run();
