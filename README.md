@@ -68,7 +68,7 @@ bind:
 特定ファイル指定をしたい場合はコマンドライン引数で指定することが可能。
 
 ```bash
---file='test/test-ifconfig.yml'
+--file='test/test-api.yml'
 ```
 
 ### Yaml Sample
