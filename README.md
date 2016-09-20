@@ -73,7 +73,7 @@ bind:
 
 ### Yaml Sample
 ```yaml
-base: https://(( env )).example.com
+base: https://{{ env }}.example.com
 option:
   headers:
     x-api-key: YOUR-SECRET-KEY
