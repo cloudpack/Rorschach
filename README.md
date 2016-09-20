@@ -10,14 +10,14 @@
 
 ## Install
 
-```
+```bash
 composer require --dev cloudpack/rorschach
 ```
 
 ## Usage
 
 ### Basic
-```
+```bash
 ./vendor/bin/rorschach inspect
 ```
 
@@ -31,27 +31,27 @@ Yaml内に、 `(( ))` ブラケットで囲んだ変数を記述することで�
 
 1. `--bind` を使ってJSONにて指定する。(複数指定可能)
 
-```
+```bash
 --bind='{"env": "prod"}'
 ```
 
-```
+```bash
 --bind='{"env": "prod"}' --bind='{"api-token": "YOURTOKEN"}'
 ```
 
 2. pre-requestsのbinding構文を使う
-```
+```yaml
 bind:
   api-token: response.data.param
 ```
 
 上記のようにすることで、以下のレスポンスの `SOME PARAMETER` が `api-token` としてbindされる
 
-```
+```json
 {
-  response: {
-    data: {
-      param: "SOME PARAMETER"
+  "response": {
+    "data": {
+      "param": "SOME PARAMETER"
     }
   }
 }
@@ -62,12 +62,12 @@ bind:
 デフォルトでは、プロジェクトディレクトリの `test*.yml` すべてを対象とする。
 特定ファイル指定をしたい場合はコマンドライン引数で指定することが可能。
 
-```
+```bash
 --file='test-hoge.yml'
 ```
 
 ### Yaml Sample
-```
+```yaml
 base: https://(( env )).example.com
 headers:
   x-api-key: YOUR-SECRET-KEY
