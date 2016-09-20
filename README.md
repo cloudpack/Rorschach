@@ -23,9 +23,14 @@ composer require --dev cloudpack/rorschach
 
 ### Options
 
+#### saikou
+普通にテストした場合、 `finished.` という味気ないメッセージが流れます。
+少しでもあなたとの距離を縮める為に最高のオプションを用意いたしました。
+`--saikou` か `-s` をつけて是非お試しください。
+
 
 #### bind
-Yaml内に、 `(( ))` ブラケットで囲んだ変数を記述することで、外部から値を注入することができる。
+Yaml内に、 `{{ }}` ブラケットで囲んだ変数を記述することで、外部から値を注入することができる。
 
 注入する方法は２つ
 
@@ -63,43 +68,50 @@ bind:
 特定ファイル指定をしたい場合はコマンドライン引数で指定することが可能。
 
 ```bash
---file='test-hoge.yml'
+--file='test/test-ifconfig.yml'
 ```
 
 ### Yaml Sample
 ```yaml
 base: https://(( env )).example.com
-headers:
-  x-api-key: YOUR-SECRET-KEY
-  ContentType: application/json
-pre-requests:
+option:
+  headers:
+    x-api-key: YOUR-SECRET-KEY
+    ContentType: application/json
+  allow_redirects: false
+pre-request:
   -
-    resource: /auth
+    url: /auth
     method: GET
-    headers:
-      x-header: HEADER
-    body:
-      name: shinichi
-      password: p@ssw0rd
+    option:
+      headers:
+        x-header: HEADER
+      body:
+        name: shinichi
+        password: p@ssw0rd
     bind:
       api-token: response.data.param
-resources:
+request:
   -
-    url: /users
+    url: /users/1
     method: GET
-    headers:
-      api-token: (( api-token ))
-    body:
-      exclude: false
+    option:
+      headers:
+        api-token: {{ api-token }}
+      body:
+        exclude: false
     expect:
       code: 200
       has:
         - id
         - user.name
         - user.address..tel01
-      assert:
+      type:
         id: integer|nullable
         name: string
+      value:
+        id: 123
+        name: shinichi
   -
     url: /items
     method: GET

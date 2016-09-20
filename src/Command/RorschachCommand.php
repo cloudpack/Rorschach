@@ -2,7 +2,10 @@
 
 namespace Rorschach\Command;
 
-use Rorschach\Resource\Entity;
+use Rorschach\Entity;
+use Rorschach\Parser;
+use Rorschach\Request;
+use Rorschach\Assert;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -12,6 +15,9 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class RorschachCommand extends Command
 {
+    /**
+     * Command configure
+     */
     protected function configure()
     {
         $this
@@ -28,62 +34,106 @@ class RorschachCommand extends Command
                 'b',
                 InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
                 'binding parameter.'
+            )
+            ->addOption(
+                'saikou',
+                's',
+                InputOption::VALUE_NONE,
+                'display saikou messages.'
             );
     }
 
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @throws \Exception
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $targets = $this->fetchTargets($input->getOption('file'));
-        $binds = $input->getOption('bind');
+        $binds = $this->fetchBinds($input->getOption('bind'));
+
         $fs = new Filesystem();
 
+        $hasError = false;
         foreach ($targets as $target) {
             if (!$fs->exists($target)) {
                 $output->writeln("<error>File not found:: {$target} has been skipped.</error>");
             }
 
-            $Entity = new Entity(file_get_contents($target), $binds);
-            $resources = $Entity
-                ->compile()
-                ->initialize()
-                ->preRequest()
-                ->compile()
-                ->getResources();
-            foreach ($resources as $resource) {
-                $line = "<comment>{$resource['method']} {$resource['url']}</comment>";
+            $yaml = file_get_contents($target);
+
+            // {{ }} to (( ))
+            $precompiled = Parser::precompile($yaml);
+
+            // bind option vars
+            $compiled = Parser::compile($precompiled, $binds);
+            $setting = Parser::parse($compiled);
+
+            foreach ($setting['pre-request'] as $request) {
+                $response = (new Request($setting, $request))->request();
+                $binds = array_merge($binds, Request::getBindParams($response, $request['bind']));
+            }
+
+            // bind vars after pre-requests
+            $compiled = Parser::compile($precompiled, $binds);
+            $setting = Parser::parse($compiled);
+
+            foreach ($setting['request'] as $request) {
+                $line = "<comment>{$request['method']} {$request['url']}</comment>";
                 $output->writeln($line);
 
-                $response = $Entity->request($resource);
-                foreach ($resource['expect'] as $type => $value) {
+                $response = (new Request($setting, $request))->request();
+
+                foreach ($request['expect'] as $type => $expect) {
+                    $result = false;
                     switch ($type) {
-                        case 'type':
-                            foreach ($value as $col => $expect) {
-                                $result = $Entity->assert($response, $type, [
-                                    'col' => $col,
-                                    'expect' => $expect,
-                                ]);
-                                $info = $this->buildMessage($type, $expect, $result);
-                                $output->writeln($info);
-                            }
+                        case 'code':
+                            $result = (new Assert\StatusCode($response, $expect))->assert();
+                            $output->writeln($this->buildMessage($type, $expect, $result));
                             break;
                         case 'has':
-                            foreach ($value as $expect) {
-                                $result = $Entity->assert($response, $type, $expect);
-                                $info = $this->buildMessage($type, $expect, $result);
-                                $output->writeln($info);
+                            foreach ($expect as $col) {
+                                $result = (new Assert\HasProperty($response, $col))->assert();
+                                $output->writeln($this->buildMessage($type, $col, $result));
                             }
                             break;
-                        default:
-                            $result = $Entity->assert($response, $type, $value);
-                            $info = $this->buildMessage($type, $value, $result);
-                            $output->writeln($info);
+                        case 'type':
+                            foreach ($expect as $col => $val) {
+                                $result = (new Assert\Type($response, $col, $val))->assert();
+                                $output->writeln($this->buildMessage($type, $val, count($result) === 0));
+                            }
                             break;
+                        case 'value':
+                            foreach ($expect as $col => $val) {
+                                $result =  (new Assert\Value($response, $col, $val))->assert();
+                                $output->writeln($this->buildMessage($type, $val, $result));
+                            }
+                            break;
+                        case 'redirect':
+                            $result = (new Assert\Redirect($response, $expect))->assert();
+                            $output->writeln($this->buildMessage($type, $expect, $result));
+                            break;
+                        default:
+                            throw new \Exception('Unknown expect type given.');
+                    }
+
+                    if (!$result) {
+                        $hasError = true;
                     }
                 }
             }
         }
-        $output->write('finished');
 
+        if ($input->getOption('saikou')) {
+            if ($hasError) {
+                $output->write("Don't care!! Try again!!😊 \n");
+            } else {
+                $output->write("Congrats!!🍻 \n");
+            }
+        } else {
+            $output->write('finished');
+        }
     }
 
     /**
@@ -110,6 +160,32 @@ class RorschachCommand extends Command
         return $targets;
     }
 
+    /**
+     * fetch option --bind params.
+     * @param $binds
+     * @return array
+     */
+    private function fetchBinds($binds)
+    {
+        $params = [];
+        if (count($binds) > 0) {
+            foreach ($binds as $bind) {
+                $bind = json_decode($bind, true);
+                $params = array_merge($params, $bind);
+            }
+        }
+
+        return $params;
+    }
+
+    /**
+     * build test result message.
+     *
+     * @param $type
+     * @param $value
+     * @param $result
+     * @return string
+     */
     private function buildMessage($type, $value, $result)
     {
         if ($result) {

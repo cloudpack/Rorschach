@@ -5,19 +5,22 @@ namespace Rorschach\Assert;
 use GuzzleHttp\Psr7\Response;
 use Rorschach\Parser;
 
-class HasProperty
+class Value
 {
     private $response;
+    private $col;
     private $expect;
 
     /**
-     * HasProperty constructor.
+     * Value constructor.
      * @param Response $response
+     * @param $col
      * @param $expect
      */
-    public function __construct(Response $response, $expect)
+    public function __construct(Response $response, $col, $expect)
     {
         $this->response = $response;
+        $this->col = $col;
         $this->expect = $expect;
     }
 
@@ -28,12 +31,8 @@ class HasProperty
     {
         $body = json_decode((string)$this->response->getBody(), true);
 
-        try {
-            Parser::search($this->expect, $body);
-        } catch (\Exception $e) {
-            return false;
-        }
+        $col = Parser::search($this->col, $body);
 
-        return true;
+        return $this->expect == $col;
     }
 }
