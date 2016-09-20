@@ -1,24 +1,25 @@
-base: https://(( env )).example.com
-header:
-  x-api-key: YOUR-SECRET-KEY
-  ContentType: application/json
+base: https://localhost:{{ port }}
+option:
+  header:
+    x-api-key: YOUR-SECRET-KEY
+    ContentType: application/json
 pre-request:
   -
-    resource: /auth
+    url: /auth
     method: GET
-    request:
+    option:
       body:
         name: shinichi
         password: p@ssw0rd
     bind:
       api-token: response.data.param
-resources:
+request:
   -
     url: /users
     method: GET
-    request:
+    options:
       header:
-        api-token: (( api-token ))
+        api-token: {{ api-token }}
       body:
         exclude: false
     expect:
@@ -26,9 +27,12 @@ resources:
       has:
         - id
         - name
-      assert:
+      type:
         id: integer
         name: string
+      value:
+        id: 0001
+        name: shinichi
   -
     url: /items
     method: GET

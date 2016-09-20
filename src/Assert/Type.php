@@ -3,64 +3,84 @@
 namespace Rorschach\Assert;
 
 use GuzzleHttp\Psr7\Response;
+use Rorschach\Parser;
 
-class Type implements AssertInterface
+class Type
 {
     private $response;
+    private $col;
     private $expect;
 
-    public function __construct(Response $response, $expect)
+    /**
+     * Type constructor.
+     * @param Response $response
+     * @param $col
+     * @param $expect
+     */
+    public function __construct(Response $response, $col, $expect)
     {
         $this->response = $response;
+        $this->col = $col;
         $this->expect = $expect;
     }
 
+    /**
+     * @return array|bool
+     * @throws \Exception
+     */
     public function assert()
     {
         $body = json_decode((string)$this->response->getBody(), true);
+        $val = Parser::search($this->col, $body);
 
-        $cols = explode('.', $this->expect['col']);
-        foreach ($cols as $col) {
-            // .. の場合は、配列
-            if ($col === '') {
-                if (is_array($body)) {
-                    $body = array_shift($body);
-                } else {
-                    return false;
-                }
-            } else if (array_key_exists($col, $body)) {
-                $body = $body[$col];
-            } else {
-                return false;
-            }
-        }
+        $expects = explode('|', $this->expect);
+        $nullable = in_array('nullable', $expects);
 
-        $expects = explode('|', $this->expect['expect']);
-
-        // nullableかつnull
-        if (in_array('nullable', $expects) && is_null($body)) {
-            return true;
-        }
-
+        $errors = [];
         foreach ($expects as $type) {
+            // if given nullable and value is null, skip.
+            if ($nullable && is_null($val)) {
+                continue;
+            }
+
+            $type = strtolower($type);
             switch ($type) {
+                case 'str':
                 case 'string':
+                    if (!is_string($val)) {
+                        $errors[] = "{$val} is not string.";
+                    }
                     break;
+                case 'int':
                 case 'integer':
-                    return $body == (int)$body;
+                    if (!$val == (int)$val) {
+                        $errors[] = "{$val} is not integer";
+                    }
                     break;
+                case 'double':
                 case 'float':
-                    return $body == (float)$body;
+                    if (!$val == (float)$val) {
+                        $errors[] = "{$val} is not float.";
+                    }
                     break;
                 case 'array':
-                    return array_values($body) === $body;
+                    if (!array_values($val) === $val) {
+                        $errors[] = "{$val} is not array.";
+                    }
                     break;
+                case 'obj':
                 case 'object':
-                    return array_values($body) !== $body;
+                    if (!array_values($val) !== $val) {
+                        $errors[] = "{$val} is not object";
+                    }
                     break;
                 default:
-                    throw new \Exception('unknown type selected.');
+                    throw new \Exception('Unknown type selected.');
             }
         }
+
+        return $errors;
     }
 }
+
+;
