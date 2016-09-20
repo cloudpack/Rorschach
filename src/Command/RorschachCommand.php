@@ -2,7 +2,6 @@
 
 namespace Rorschach\Command;
 
-use Rorschach\Entity;
 use Rorschach\Parser;
 use Rorschach\Request;
 use Rorschach\Assert;
