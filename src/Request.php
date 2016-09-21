@@ -55,7 +55,7 @@ class Request
             throw new \Exception('Pre-request failed.');
         }
 
-        $body = $response->getBody();
+        $body = json_decode((string)$response->getBody(), true);
         $params = [];
 
         foreach ($binds as $from => $to) {
