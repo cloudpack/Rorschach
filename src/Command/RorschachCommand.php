@@ -78,6 +78,7 @@ class RorschachCommand extends Command
             $compiled = Parser::compile($precompiled, $binds);
             $setting = Parser::parse($compiled);
 
+            $hasError = false;
             foreach ($setting['request'] as $request) {
                 $line = "<comment>{$request['method']} {$request['url']}</comment>";
                 $output->writeln($line);
@@ -85,40 +86,50 @@ class RorschachCommand extends Command
                 $response = (new Request($setting, $request))->request();
 
                 foreach ($request['expect'] as $type => $expect) {
-                    $result = false;
                     switch ($type) {
                         case 'code':
                             $result = (new Assert\StatusCode($response, $expect))->assert();
                             $output->writeln($this->buildMessage($type, $expect, $result));
+                            if (! $result) {
+                                $hasError = true;
+                            }
                             break;
                         case 'has':
                             foreach ($expect as $col) {
                                 $result = (new Assert\HasProperty($response, $col))->assert();
                                 $output->writeln($this->buildMessage($type, $col, $result));
+                                if (! $result) {
+                                    $hasError = true;
+                                }
                             }
                             break;
                         case 'type':
                             foreach ($expect as $col => $val) {
                                 $result = (new Assert\Type($response, $col, $val))->assert();
                                 $output->writeln($this->buildMessage($type, $val, count($result) === 0));
+                                if (count($result) > 0) {
+                                    $hasError = true;
+                                }
                             }
                             break;
                         case 'value':
                             foreach ($expect as $col => $val) {
-                                $result =  (new Assert\Value($response, $col, $val))->assert();
+                                $result = (new Assert\Value($response, $col, $val))->assert();
                                 $output->writeln($this->buildMessage($type, $val, $result));
+                                if (! $result) {
+                                    $hasError = true;
+                                }
                             }
                             break;
                         case 'redirect':
                             $result = (new Assert\Redirect($response, $expect))->assert();
                             $output->writeln($this->buildMessage($type, $expect, $result));
+                            if (! $result) {
+                                $hasError = true;
+                            }
                             break;
                         default:
                             throw new \Exception('Unknown expect type given.');
-                    }
-
-                    if (!$result) {
-                        $hasError = true;
                     }
                 }
             }
