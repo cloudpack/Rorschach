@@ -54,7 +54,7 @@ class Type
                 case 'int':
                 case 'integer':
                     if (!is_int($val)) {
-                        $errors[] = "{$val} is not integer";
+                        $errors[] = "{$val} is not integer.";
                     }
                     break;
                 case 'double':
@@ -71,7 +71,7 @@ class Type
                 case 'obj':
                 case 'object':
                     if (!is_array($val) || array_values($val) === $val) {
-                        $errors[] = "{$val} is not object";
+                        $errors[] = "{$val} is not object.";
                     }
                     break;
                 default:
