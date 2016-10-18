@@ -74,6 +74,12 @@ class Type
                         $errors[] = "{$val} is not object.";
                     }
                     break;
+                case 'bool':
+                case 'boolean':
+                    if (!is_bool($val)) {
+                        $errors[] = "{$val} is not boolean.";
+                    }
+                    break;
                 default:
                     throw new \Exception('Unknown type selected.');
             }
