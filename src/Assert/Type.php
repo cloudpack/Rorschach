@@ -53,24 +53,24 @@ class Type
                     break;
                 case 'int':
                 case 'integer':
-                    if ($val === (int)$val) {
+                    if (!is_int($val)) {
                         $errors[] = "{$val} is not integer";
                     }
                     break;
                 case 'double':
                 case 'float':
-                    if ($val === (float)$val) {
+                    if (!is_float($val)) {
                         $errors[] = "{$val} is not float.";
                     }
                     break;
                 case 'array':
-                    if (is_array($val) && array_values($val) === $val) {
+                    if (!is_array($val) || array_values($val) !== $val) {
                         $errors[] = "{$val} is not array.";
                     }
                     break;
                 case 'obj':
                 case 'object':
-                    if (is_array($val) && array_values($val) !== $val) {
+                    if (!is_array($val) || array_values($val) === $val) {
                         $errors[] = "{$val} is not object";
                     }
                     break;
