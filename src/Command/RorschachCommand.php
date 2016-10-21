@@ -39,6 +39,12 @@ class RorschachCommand extends Command
                 's',
                 InputOption::VALUE_NONE,
                 'display saikou messages.'
+            )
+            ->addOption(
+                'response',
+                'r',
+                InputOption::VALUE_NONE,
+                'display response.'
             );
     }
 
@@ -83,6 +89,9 @@ class RorschachCommand extends Command
                 $output->writeln($line);
 
                 $response = (new Request($setting, $request))->request();
+                if ($input->getOption('response')) {
+                    $output->writeln("response: " . (string)$response->getBody());
+                }
 
                 foreach ($request['expect'] as $type => $expect) {
                     $result = false;
