@@ -35,6 +35,12 @@ class RorschachCommand extends Command
                 'binding parameter.'
             )
             ->addOption(
+                'dir',
+                'd',
+                InputOption::VALUE_OPTIONAL,
+                'test files dir.'
+            )
+            ->addOption(
                 'saikou',
                 's',
                 InputOption::VALUE_NONE,
@@ -49,7 +55,11 @@ class RorschachCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $targets = $this->fetchTargets($input->getOption('file'));
+        if ($input->getOption('dir')) {
+            $targets = $this->fetchDirTargets($input->getOption('dir'));
+        } else {
+            $targets = $this->fetchTargets($input->getOption('file'));
+        }
         $binds = $this->fetchBinds($input->getOption('bind'));
 
         $fs = new Filesystem();
@@ -151,6 +161,35 @@ class RorschachCommand extends Command
         $finder = new Finder();
         $finder->files()
             ->in(__DIR__ . '/../../../..')
+            ->name('test*.yml');
+        foreach ($finder as $file) {
+            $targets[] = $file->getRealPath();
+        }
+
+        return $targets;
+    }
+
+    /**
+     * fetch target dir in files.
+     *
+     * @param  string $dir
+     * @return array
+     */
+    private function fetchDirTargets($dir)
+    {
+        $targetDir = '';
+        // 相対パス
+        if (substr($dir, 0, 1) == '.') {
+            $targetDir = __DIR__ . '/../../../../'.$dir
+        // 絶対パス
+        } else {
+            $targetDir = $dir;
+        }
+
+        $targets = [];
+        $finder = new Finder();
+        $finder->files()
+            ->in($targetDir)
             ->name('test*.yml');
         foreach ($finder as $file) {
             $targets[] = $file->getRealPath();
