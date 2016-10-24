@@ -90,7 +90,7 @@ class RorschachCommand extends Command
 
                 $response = (new Request($setting, $request))->request();
                 if ($input->getOption('response')) {
-                    $output->writeln("response: " . (string)$response->getBody());
+                    $output->writeln((string)$response->getBody());
                 }
 
                 foreach ($request['expect'] as $type => $expect) {
