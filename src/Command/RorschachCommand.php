@@ -201,7 +201,7 @@ class RorschachCommand extends Command
         $targetDir = '';
         // 相対パス
         if (substr($dir, 0, 1) == '.') {
-            $targetDir = __DIR__ . '/../../../../'.$dir
+            $targetDir = __DIR__ . '/../../../../'.$dir;
         // 絶対パス
         } else {
             $targetDir = $dir;
