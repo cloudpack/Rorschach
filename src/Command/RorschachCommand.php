@@ -98,9 +98,16 @@ class RorschachCommand extends Command
                             }
                             break;
                         case 'type':
+                            $err_results = [];
                             foreach ($expect as $col => $val) {
-                                $result = (new Assert\Type($response, $col, $val))->assert();
-                                $output->writeln($this->buildMessage($type, $val, count($result) === 0));
+                                $assert_result = (new Assert\Type($response, $col, $val))->assert();
+                                $output->writeln($this->buildMessage($type, $val, count($assert_result) === 0));
+                                if (!empty($assert_result)) {
+                                    $err_results[] = $assert_result;
+                                }
+                            }
+                            if (empty($err_results)) {
+                                $result = true;
                             }
                             break;
                         case 'value':
