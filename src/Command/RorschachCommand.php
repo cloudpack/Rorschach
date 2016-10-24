@@ -77,6 +77,11 @@ class RorschachCommand extends Command
 
             foreach ($setting['pre-request'] as $request) {
                 $response = (new Request($setting, $request))->request();
+                if ($input->getOption('response')) {
+                    $line = "<comment>{$request['method']} {$request['url']}</comment>";
+                    $output->writeln((string)$response->getBody());
+                }
+
                 $binds = array_merge($binds, Request::getBindParams($response, $request['bind']));
             }
 
