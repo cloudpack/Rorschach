@@ -177,10 +177,19 @@ class RorschachCommand extends Command
      */
     private function fetchDirTargets($dir)
     {
+        $targetDir = '';
+        // 相対パス
+        if (substr($dir, 0, 1) == '.') {
+            $targetDir = __DIR__ . '/../../../../'.$dir
+        // 絶対パス
+        } else {
+            $targetDir = $dir;
+        }
+
         $targets = [];
         $finder = new Finder();
         $finder->files()
-            ->in($dir)
+            ->in($targetDir)
             ->name('test*.yml');
         foreach ($finder as $file) {
             $targets[] = $file->getRealPath();
