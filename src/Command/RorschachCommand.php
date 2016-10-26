@@ -89,6 +89,7 @@ class RorschachCommand extends Command
                 $response = (new Request($setting, $request))->request();
                 if ($input->getOption('output')) {
                     $line = "<comment>{$request['method']} {$request['url']}</comment>";
+                    $output->writeln($line);
                     $output->writeln((string)$response->getBody());
                 }
 
@@ -201,7 +202,7 @@ class RorschachCommand extends Command
         $targetDir = '';
         // 相対パス
         if (substr($dir, 0, 1) == '.') {
-            $targetDir = __DIR__ . '/../../../../'.$dir
+            $targetDir = __DIR__ . '/../../../../../'.$dir;
         // 絶対パス
         } else {
             $targetDir = $dir;
