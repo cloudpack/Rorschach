@@ -35,7 +35,16 @@ class Type
 
         $expects = explode('|', $this->expect);
         $nullable = in_array('nullable', $expects);
-        $type = $expects[0];
+        if ($nullable) {
+            if ($expects[0] == 'nullable') {
+                $type = $expects[1];
+            } else {
+                $type = $expects[0];
+            }
+        } else {
+            $type = $expects[0];
+        }
+
         $errors = [];
 
         // if given nullable and value is null, skip.
