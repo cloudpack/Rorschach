@@ -39,7 +39,7 @@ class Type
         $errors = [];
         foreach ($expects as $type) {
             // if given nullable and value is null, skip.
-            if ($nullable || is_null($val)) {
+            if ($nullable && (is_null($val) || $type == 'nullable')) {
                 continue;
             }
 
