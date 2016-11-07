@@ -126,7 +126,7 @@ class RorschachCommand extends Command
                             $errResults = [];
                             foreach ($expect as $col => $val) {
                                 $assertResult = (new Assert\Type($response, $col, $val))->assert();
-                                $output->writeln($this->buildMessage($type, "$col:".$val, count($assertResult) === 0));
+                                $output->writeln($this->buildMessage($type, "$col:$val", count($assertResult) === 0));
                                 if (!empty($assertResult)) {
                                     $errResults[] = $assertResult;
                                 }
