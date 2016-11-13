@@ -57,6 +57,10 @@ class Parser
      */
     public static function search($pattern, $object)
     {
+        if (is_null($object)) {
+            throw new \Exception('No pattern found:: ' . $pattern);
+        }
+
         $searches = explode('.', $pattern);
         foreach ($searches as $col) {
             // .. の場合は、配列
