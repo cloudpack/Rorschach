@@ -66,7 +66,8 @@ class RorschachCommand extends Command
         } else {
             $targets = $this->fetchTargets($input->getOption('file'));
         }
-        $binds = $this->fetchBinds($input->getOption('bind'));
+
+        $inputBinds = $this->fetchBinds($input->getOption('bind'));
 
         $fs = new Filesystem();
 
@@ -75,6 +76,8 @@ class RorschachCommand extends Command
             if (!$fs->exists($target)) {
                 $output->writeln("<error>File not found:: {$target} has been skipped.</error>");
             }
+
+            $binds = $inputBinds;
 
             $yaml = file_get_contents($target);
 
