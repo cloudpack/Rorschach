@@ -35,54 +35,62 @@ class Type
 
         $expects = explode('|', $this->expect);
         $nullable = in_array('nullable', $expects);
+        if ($nullable) {
+            if ($expects[0] == 'nullable') {
+                $type = $expects[1];
+            } else {
+                $type = $expects[0];
+            }
+        } else {
+            $type = $expects[0];
+        }
 
         $errors = [];
-        foreach ($expects as $type) {
-            // if given nullable and value is null, skip.
-            if ($nullable && is_null($val)) {
-                continue;
-            }
 
-            $type = strtolower($type);
-            switch ($type) {
-                case 'str':
-                case 'string':
-                    if (!is_string($val)) {
-                        $errors[] = "{$val} is not string.";
-                    }
-                    break;
-                case 'int':
-                case 'integer':
-                    if (!is_int($val)) {
-                        $errors[] = "{$val} is not integer.";
-                    }
-                    break;
-                case 'double':
-                case 'float':
-                    if (!is_float($val)) {
-                        $errors[] = "{$val} is not float.";
-                    }
-                    break;
-                case 'array':
-                    if (!is_array($val) || array_values($val) !== $val) {
-                        $errors[] = "{$val} is not array.";
-                    }
-                    break;
-                case 'obj':
-                case 'object':
-                    if (!is_array($val) || array_values($val) === $val) {
-                        $errors[] = "{$val} is not object.";
-                    }
-                    break;
-                case 'bool':
-                case 'boolean':
-                    if (!is_bool($val)) {
-                        $errors[] = "{$val} is not boolean.";
-                    }
-                    break;
-                default:
-                    throw new \Exception('Unknown type selected.');
-            }
+        // if given nullable and value is null, skip.
+        if ($nullable && is_null($val)) {
+            return $errors;
+        }
+
+        $type = strtolower($type);
+        switch ($type) {
+            case 'str':
+            case 'string':
+                if (!is_string($val)) {
+                    $errors[] = "{$val} is not string.";
+                }
+                break;
+            case 'int':
+            case 'integer':
+                if (!is_int($val)) {
+                    $errors[] = "{$val} is not integer.";
+                }
+                break;
+            case 'double':
+            case 'float':
+                if (!is_float($val)) {
+                    $errors[] = "{$val} is not float.";
+                }
+                break;
+            case 'array':
+                if (!is_array($val) || array_values($val) !== $val) {
+                    $errors[] = "{$val} is not array.";
+                }
+                break;
+            case 'obj':
+            case 'object':
+                if (!is_array($val) || array_values($val) === $val) {
+                    $errors[] = "{$val} is not object.";
+                }
+                break;
+            case 'bool':
+            case 'boolean':
+                if (!is_bool($val)) {
+                    $errors[] = "{$val} is not boolean.";
+                }
+                break;
+            default:
+                throw new \Exception('Unknown type selected.');
         }
 
         return $errors;
