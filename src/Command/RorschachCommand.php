@@ -114,6 +114,13 @@ class RorschachCommand extends Command
             $compiled = Parser::compile($precompiled, $binds);
             $setting = Parser::parse($compiled);
 
+            if ($input->getOption('output')) {
+                $vars = Parser::searchVars($compiled);
+                foreach ($vars as $var) {
+                    $output->writeln('<error>unbound variable: '.$var.'</error>');
+                }
+            }
+
             foreach ($setting['request'] as $request) {
                 $line = "<comment>{$request['method']} {$request['url']}</comment>";
                 $output->writeln($line);
