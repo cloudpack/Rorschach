@@ -37,6 +37,18 @@ class Parser
     }
 
     /**
+     * search (( )) brackets vars.
+     *
+     * @param $raw
+     * @return array
+     */
+    public static function searchVars($raw)
+    {
+        preg_match_all('/\(\(\s?([^\s]+)\s?\)\)/', $raw, $matches);
+        return array_unique($matches[1]);
+    }
+
+    /**
      * parse yaml.
      *
      * @param $raw

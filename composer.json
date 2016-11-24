@@ -12,7 +12,8 @@
         "symfony/finder": "^3.1",
         "symfony/yaml": "^3.1",
         "guzzlehttp/guzzle": "^6.2",
-        "symfony/filesystem": "^3.1"
+        "symfony/filesystem": "^3.1",
+        "vlucas/phpdotenv": "^2.4"
     },
     "license": "MIT",
     "authors": [

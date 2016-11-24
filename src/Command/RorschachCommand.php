@@ -2,6 +2,7 @@
 
 namespace Rorschach\Command;
 
+use Dotenv\Dotenv;
 use Rorschach\Parser;
 use Rorschach\Request;
 use Rorschach\Assert;
@@ -35,6 +36,12 @@ class RorschachCommand extends Command
                 'binding parameter.'
             )
             ->addOption(
+                'env-file',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'file of environment variables.'
+            )
+            ->addOption(
                 'dir',
                 'd',
                 InputOption::VALUE_OPTIONAL,
@@ -61,6 +68,8 @@ class RorschachCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->loadDotEnv($input->getOption('env-file'));
+
         if ($input->getOption('dir')) {
             $targets = $this->fetchDirTargets($input->getOption('dir'));
         } else {
@@ -77,12 +86,13 @@ class RorschachCommand extends Command
                 $output->writeln("<error>File not found:: {$target} has been skipped.</error>");
             }
 
-            $binds = $inputBinds;
-
             $yaml = file_get_contents($target);
 
             // {{ }} to (( ))
             $precompiled = Parser::precompile($yaml);
+
+            $binds = $this->createEnvBinds($precompiled);
+            $binds = array_merge($binds, $inputBinds);
 
             // bind option vars
             $compiled = Parser::compile($precompiled, $binds);
@@ -103,6 +113,13 @@ class RorschachCommand extends Command
             // bind vars after pre-requests
             $compiled = Parser::compile($precompiled, $binds);
             $setting = Parser::parse($compiled);
+
+            if ($input->getOption('output')) {
+                $vars = Parser::searchVars($compiled);
+                foreach ($vars as $var) {
+                    $output->writeln('<error>unbound variable: '.$var.'</error>');
+                }
+            }
 
             foreach ($setting['request'] as $request) {
                 $line = "<comment>{$request['method']} {$request['url']}</comment>";
@@ -142,7 +159,7 @@ class RorschachCommand extends Command
                             break;
                         case 'value':
                             foreach ($expect as $col => $val) {
-                                $result =  (new Assert\Value($response, $col, $val))->assert();
+                                $result = (new Assert\Value($response, $col, $val))->assert();
                                 $output->writeln($this->buildMessage($type, $val, $result));
                             }
                             break;
@@ -169,6 +186,22 @@ class RorschachCommand extends Command
             }
         } else {
             $output->write('finished');
+        }
+    }
+
+    /**
+     * load file of environment variables
+     *
+     * @param $filename
+     */
+    private function loadDotEnv($filename)
+    {
+        if ($filename) {
+            $dotenv = new Dotenv(getcwd(), $filename);
+            $dotenv->load();
+        } else {
+            $dotenv = new Dotenv(getcwd());
+            $dotenv->load();
         }
     }
 
@@ -207,8 +240,8 @@ class RorschachCommand extends Command
         $targetDir = '';
         // 相対パス
         if (substr($dir, 0, 1) == '.') {
-            $targetDir = __DIR__ . '/../../../../../'.$dir;
-        // 絶対パス
+            $targetDir = __DIR__ . '/../../../../../' . $dir;
+            // 絶対パス
         } else {
             $targetDir = $dir;
         }
@@ -261,5 +294,24 @@ class RorschachCommand extends Command
             $info = 'FAILED.';
         }
         return "\t<{$tag}>[{$type}]\t{$info}\t{$value}</{$tag}>";
+    }
+
+    /**
+     * create binds from environment variables
+     *
+     * @param $raw
+     * @return array
+     */
+    private function createEnvBinds($raw)
+    {
+        $result = [];
+        $vars = Parser::searchVars($raw);
+        foreach ($vars as $var) {
+            $bind = getenv($var);
+            if ($bind) {
+                $result[$var] = $bind;
+            }
+        }
+        return $result;
     }
 }
