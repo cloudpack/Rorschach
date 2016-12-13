@@ -122,6 +122,14 @@ class RorschachCommand extends Command
             }
 
             foreach ($setting['request'] as $request) {
+
+                if ($input->getOption('output')) {
+                    $description = $request['description'];
+                    if (!empty($description)) {
+                        $output->writeln("<comment>{$description}</comment>");
+                    }
+                }
+
                 $line = "<comment>{$request['method']} {$request['url']}</comment>";
                 $output->writeln($line);
 
