@@ -82,6 +82,8 @@ class Parser
                 } else {
                     throw new \Exception('No pattern found:: ' . $pattern);
                 }
+            } else if (!is_array($object)) {
+                throw new \Exception('No pattern found:: ' . $pattern);
             } else if (array_key_exists($col, $object)) {
                 $object = $object[$col];
             } else {
