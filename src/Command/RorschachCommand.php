@@ -102,6 +102,10 @@ class RorschachCommand extends Command
             $compiled = Parser::compile($precompiled, $binds);
             $setting = Parser::parse($compiled);
 
+            if ($output->getVerbosity() >= OutputInterface::VERBOSITY_DEBUG) {
+                $output->writeln('<info>pre-request</info>');
+            }
+
             foreach ($setting['pre-request'] as $request) {
                 $response = (new Request($setting, $request))->request();
                 if ($output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE) {
@@ -123,6 +127,10 @@ class RorschachCommand extends Command
                 foreach ($vars as $var) {
                     $output->writeln('<error>unbound variable: '.$var.'</error>');
                 }
+            }
+
+            if ($output->getVerbosity() >= OutputInterface::VERBOSITY_DEBUG) {
+                $output->writeln('<info>request</info>');
             }
 
             foreach ($setting['request'] as $request) {
