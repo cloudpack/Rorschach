@@ -3,6 +3,7 @@
 namespace Rorschach\Command;
 
 use Dotenv\Dotenv;
+use Dotenv\Exception\InvalidPathException;
 use Rorschach\Parser;
 use Rorschach\Request;
 use Rorschach\Assert;
@@ -208,8 +209,12 @@ class RorschachCommand extends Command
             $dotenv = new Dotenv(getcwd(), $filename);
             $dotenv->load();
         } else {
-            $dotenv = new Dotenv(getcwd());
-            $dotenv->load();
+            try {
+                $dotenv = new Dotenv(getcwd());
+                $dotenv->load();
+            } catch (InvalidPathException $e) {
+                // .envが存在しないケース
+            }
         }
     }
 
