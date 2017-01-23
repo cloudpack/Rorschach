@@ -69,6 +69,10 @@ class RorschachCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        if ($input->getOption('output')) {
+            $output->setVerbosity(OutputInterface::VERBOSITY_DEBUG);
+        }
+
         $this->loadDotEnv($input->getOption('env-file'));
 
         if ($input->getOption('dir')) {
@@ -99,9 +103,13 @@ class RorschachCommand extends Command
             $compiled = Parser::compile($precompiled, $binds);
             $setting = Parser::parse($compiled);
 
+            if ($output->getVerbosity() >= OutputInterface::VERBOSITY_DEBUG) {
+                $output->writeln('<info>pre-request</info>');
+            }
+
             foreach ($setting['pre-request'] as $request) {
                 $response = (new Request($setting, $request))->request();
-                if ($input->getOption('output')) {
+                if ($output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE) {
                     $line = "<comment>{$request['method']} {$request['url']}</comment>";
                     $output->writeln($line);
                     $output->writeln($response->getStatusCode());
@@ -115,11 +123,15 @@ class RorschachCommand extends Command
             $compiled = Parser::compile($precompiled, $binds);
             $setting = Parser::parse($compiled);
 
-            if ($input->getOption('output')) {
+            if ($output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE) {
                 $vars = Parser::searchVars($compiled);
                 foreach ($vars as $var) {
                     $output->writeln('<error>unbound variable: '.$var.'</error>');
                 }
+            }
+
+            if ($output->getVerbosity() >= OutputInterface::VERBOSITY_DEBUG) {
+                $output->writeln('<info>request</info>');
             }
 
             foreach ($setting['request'] as $request) {
@@ -135,7 +147,7 @@ class RorschachCommand extends Command
                 $output->writeln($line);
 
                 $response = (new Request($setting, $request))->request();
-                if ($input->getOption('output')) {
+                if ($output->getVerbosity() >= OutputInterface::VERBOSITY_VERBOSE) {
                     $output->writeln($response->getStatusCode());
                     $output->writeln((string)$response->getBody());
                 }
