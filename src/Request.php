@@ -57,7 +57,7 @@ class Request
         }
 
         if ($function) {
-            $body = $function((string)$response->getBody());
+            $body = $function($response);
         } else {
             $body = json_decode((string)$response->getBody(), true);
         }

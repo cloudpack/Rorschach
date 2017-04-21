@@ -76,6 +76,7 @@ bind:
 - pre-requestで実行したAPIのレスポンスをフックして任意のコードを実行し、レスポンスを返すようにできる
 - venderディレクトリやtestsディレクトリと同階層に `plugins` という名前でディレクトリを作成し、その中にphpファイルを設置する
     - 実行時にpluginsディレクトリ内のphpファイルを読み込む為、関数を定義しyamlでは `after-function` というキーを設定することでフックすることができる
+    - 呼び出された関数は Response Object を引数に受け取るので、それを元に関数を作成
     - e.g.
 ```
 $ tree .
@@ -91,8 +92,12 @@ $ tree .
 
 $ cat plugins/test_function.php
 <?php
-function toTest($body) {
-    return json_decode($body, true);
+/**
+ * toTest()
+ * @Param $Response
+ */
+function toTest($Response) {
+    return json_decode((string)$Response->getBody(), true);
 }
 
 $ cat ./tests/test-beta.yml
