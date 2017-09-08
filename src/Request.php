@@ -46,18 +46,23 @@ class Request
      * return binding param set.
      * @param GuzzleResponse $response
      * @param $binds
+     * @param $function
      * @return array
      * @throws \Exception
      */
-    public static function getBindParams(GuzzleResponse $response, $binds)
+    public static function getBindParams(GuzzleResponse $response, $binds, $function)
     {
         if ($response->getStatusCode() >= 400) {
             throw new \Exception('Pre-request failed.');
         }
 
-        $body = json_decode((string)$response->getBody(), true);
-        $params = [];
+        if ($function) {
+            $body = $function($response);
+        } else {
+            $body = json_decode((string)$response->getBody(), true);
+        }
 
+        $params = [];
         foreach ($binds as $from => $to) {
             $params[$from] = Parser::search($to, $body);
         }

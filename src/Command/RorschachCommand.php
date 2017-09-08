@@ -74,7 +74,7 @@ class RorschachCommand extends Command
         }
 
         $this->loadDotEnv($input->getOption('env-file'));
-
+        $this->loadPlugins();
         if ($input->getOption('dir')) {
             $targets = $this->fetchDirTargets($input->getOption('dir'));
         } else {
@@ -115,8 +115,7 @@ class RorschachCommand extends Command
                     $output->writeln($response->getStatusCode());
                     $output->writeln((string)$response->getBody());
                 }
-
-                $binds = array_merge($binds, Request::getBindParams($response, $request['bind']));
+                $binds = array_merge($binds, Request::getBindParams($response, $request['bind'], $request['after-function']));
             }
 
             // bind vars after pre-requests
@@ -207,6 +206,21 @@ class RorschachCommand extends Command
             }
         } else {
             $output->write('finished');
+        }
+    }
+
+    /**
+     * load plugin
+     *
+     * @param $filename
+     */
+    private function loadPlugins()
+    {
+        $pluginDir = __DIR__ . '/../../../../../plugins';
+        if (file_exists($pluginDir)) {
+            foreach (glob(rtrim($pluginDir, '/') . '/*.php') as $classFile) {
+                require_once $classFile;
+            }
         }
     }
 

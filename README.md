@@ -71,6 +71,56 @@ bind:
 --file='test/test-api.yml'
 ```
 
+
+### plugin機能ついて
+- pre-requestで実行したAPIのレスポンスをフックして任意のコードを実行し、レスポンスを返すようにできる
+- venderディレクトリやtestsディレクトリと同階層に `plugins` という名前でディレクトリを作成し、その中にphpファイルを設置する
+    - 実行時にpluginsディレクトリ内のphpファイルを読み込む為、関数を定義しyamlでは `after-function` というキーを設定することでフックすることができる
+    - 呼び出された関数は Response Object を引数に受け取るので、それを元に関数を作成
+    - e.g.
+```
+$ tree .
+.
+├── README.md
+├── composer.json
+├── composer.lock
+├── plugins
+│   └── test_function.php
+├── tests
+│   ├── test-beta.yml
+....
+
+$ cat plugins/test_function.php
+<?php
+/**
+ * toTest()
+ * @Param $Response
+ */
+function toTest($Response) {
+    return json_decode((string)$Response->getBody(), true);
+}
+
+$ cat ./tests/test-beta.yml
+....
+pre-request:
+  -
+    url: /login
+    method: POST
+    option:
+      headers:
+        ...
+      json:
+        ...
+    bind:
+      api-token: test
+    after-function: toTest
+...
+```
+- この機能を利用することにより、次のようなことが可能になる
+    - レスポンスが暗号化されているため復号化したり...
+    - 別の固定値に書き換えたり...
+    - etc ...
+
 ### Yaml Sample
 ```yaml
 base: https://{{ env }}.example.com
